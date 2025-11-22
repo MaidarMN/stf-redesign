@@ -96,9 +96,20 @@ const navigation: NavItem[] = [
     },
 ];
 
+const systemLinks = [
+    { name: "Төслийн удирдлагын систем", href: "https://project.stf.gov.mn/#/landing/3824568/0" },
+    { name: "Судлаачийн мэдээллийн сан", href: "https://researcher.stf.gov.mn/#/login" },
+    { name: "Докторын зэрэг хамгаалуулах зөвлөл", href: "https://zuvlul.stf.gov.mn/#/login" },
+    { name: "Гарааны компани", href: "https://startup.stf.gov.mn/#/login" },
+    { name: "Нээлттэй мэдээллийн сан", href: "https://data.stf.gov.mn/" },
+    { name: "Шинжлэх ухааны түлхүүр нэр томьеоны тайлбар толь", href: "http://dict.stf.gov.mn/" },
+    { name: "Лабаратори бүртгэл", href: "https://docs.google.com/forms/d/e/1FAIpQLSfseYezmqUeB80CM3AJvvMf63mfdk4u2j8ZR7yQ78jew44cPg/viewform" },
+];
+
 export default function Header() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const [mobileSystemsOpen, setMobileSystemsOpen] = useState(false);
 
     return (
         <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
@@ -191,9 +202,29 @@ export default function Header() {
                     <button className="p-2 text-gray-500 hover:text-blue-700 transition-colors">
                         <Globe size={20} />
                     </button>
-                    <button className="hidden lg:block bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-800 transition-all shadow-lg shadow-blue-700/20 hover:shadow-blue-700/40 active:scale-95">
-                        Цахим систем
-                    </button>
+
+                    {/* Desktop Systems Dropdown */}
+                    <div className="relative group hidden lg:block">
+                        <button className="bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-800 transition-all shadow-lg shadow-blue-700/20 hover:shadow-blue-700/40 active:scale-95 flex items-center">
+                            Цахим систем
+                            <ChevronDown size={16} className="ml-2 group-hover:rotate-180 transition-transform" />
+                        </button>
+                        <div className="absolute top-full right-0 w-72 bg-white shadow-xl rounded-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 mt-2">
+                            <div className="py-2">
+                                {systemLinks.map((link) => (
+                                    <Link
+                                        key={link.name}
+                                        href={link.href}
+                                        target="_blank"
+                                        className="block px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-b border-gray-50 last:border-0"
+                                    >
+                                        {link.name}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     <button
                         className="xl:hidden p-2 text-gray-600"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -246,9 +277,30 @@ export default function Header() {
                             </div>
                         ))}
                         <div className="pt-4">
-                            <button className="w-full bg-blue-700 text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-all">
-                                Цахим систем
-                            </button>
+                            <div className="border rounded-lg overflow-hidden">
+                                <button
+                                    onClick={() => setMobileSystemsOpen(!mobileSystemsOpen)}
+                                    className="w-full bg-blue-700 text-white px-5 py-3 text-sm font-semibold hover:bg-blue-800 transition-all flex justify-between items-center"
+                                >
+                                    Цахим систем
+                                    <ChevronDown size={16} className={`transition-transform ${mobileSystemsOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {mobileSystemsOpen && (
+                                    <div className="bg-gray-50 border-t border-gray-200">
+                                        {systemLinks.map((link) => (
+                                            <Link
+                                                key={link.name}
+                                                href={link.href}
+                                                target="_blank"
+                                                className="block px-5 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-b border-gray-200 last:border-0"
+                                                onClick={() => setMobileMenuOpen(false)}
+                                            >
+                                                {link.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

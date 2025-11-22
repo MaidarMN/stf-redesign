@@ -14,7 +14,7 @@ export default function Footer() {
                             хөтөлбөрийг санхүүжүүлэх, хэрэгжилтэд хяналт тавих чиг үүрэг бүхий байгууллага юм.
                         </p>
                         <div className="flex space-x-4">
-                            <Link href="#" className="p-2 bg-slate-800 rounded-full hover:bg-blue-600 hover:text-white transition-colors">
+                            <Link href="https://www.facebook.com/mongolianfoundationforscienceandtechnology" target="_blank" rel="noopener noreferrer" className="p-2 bg-slate-800 rounded-full hover:bg-blue-600 hover:text-white transition-colors">
                                 <Facebook size={18} />
                             </Link>
                             <Link href="#" className="p-2 bg-slate-800 rounded-full hover:bg-blue-400 hover:text-white transition-colors">
