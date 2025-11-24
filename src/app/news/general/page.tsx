@@ -1,63 +1,26 @@
 import { Calendar, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
-export default function NewsPage() {
-    const newsItems = [
-        {
-            id: 1,
-            title: "Шинжлэх ухааны ажилтны өдрийг тэмдэглэн өнгөрүүллээ",
-            date: "2023-11-24",
-            category: "Мэдээ",
-            image: "/news/news-1.jpg", // Placeholder
-            summary:
-                "Монгол Улсад орчин цагийн шинжлэх ухааны байгууллага үүсэж хөгжсөний 102 жилийн ой, “Шинжлэх ухааны ажилтны өдөр”-ийг тохиолдуулан салбарын шилдэг ажилтнуудад шагнал гардууллаа.",
-        },
-        {
-            id: 2,
-            title: "2024 оны шинжлэх ухаан, технологийн төсөл сонгон шалгаруулалтын дүн",
-            date: "2023-11-20",
-            category: "Зарлал",
-            image: "/news/news-2.jpg", // Placeholder
-            summary:
-                "2024 онд хэрэгжүүлэх шинжлэх ухаан, технологийн төслийн сонгон шалгаруулалтын дүн гарлаа. Шалгарсан төслүүдийн жагсаалттай танилцана уу.",
-        },
-        {
-            id: 3,
-            title: "Монгол-Хятадын хамтарсан судалгааны тэтгэлэг зарлагдлаа",
-            date: "2023-11-15",
-            category: "Тэтгэлэг",
-            image: "/news/news-3.jpg", // Placeholder
-            summary:
-                "Монгол-Хятадын хамтарсан судалгааны төсөл хэрэгжүүлэх эрдэмтэн судлаачдыг урьж байна. Төслийн саналыг 2023 оны 12-р сарын 20 хүртэл хүлээн авна.",
-        },
-        {
-            id: 4,
-            title: "Инновацийн долоо хоног 2023 арга хэмжээ амжилттай болж өндөрлөлөө",
-            date: "2023-10-30",
-            category: "Мэдээ",
-            image: "/news/news-4.jpg", // Placeholder
-            summary:
-                "Инновацийн долоо хоног арга хэмжээний хүрээнд зохион байгуулагдсан үзэсгэлэн, хэлэлцүүлэг, сургалтууд амжилттай болж өндөрлөлөө.",
-        },
-        {
-            id: 5,
-            title: "Шинжлэх ухааны паркийн захиргаа байгуулагдлаа",
-            date: "2023-10-15",
-            category: "Мэдээ",
-            image: "/news/news-5.jpg", // Placeholder
-            summary:
-                "Шинжлэх ухааны паркийн эрх зүйн байдлын тухай хууль батлагдсантай холбогдуулан Шинжлэх ухааны паркийн захиргааг байгууллаа.",
-        },
-        {
-            id: 6,
-            title: "Залуу судлаачдын тэтгэлэгт хөтөлбөр зарлагдлаа",
-            date: "2023-10-01",
-            category: "Тэтгэлэг",
-            image: "/news/news-6.jpg", // Placeholder
-            summary:
-                "Шинжлэх ухаан, технологийн сангаас залуу судлаачдыг дэмжих зорилгоор тэтгэлэгт хөтөлбөр зарлалаа.",
-        },
-    ];
+export const dynamic = 'force-dynamic';
+
+async function getNews() {
+    try {
+        const news = await prisma.news.findMany({
+            orderBy: {
+                date: 'desc',
+            },
+        });
+        return news;
+    } catch (error) {
+        console.error("Error fetching news:", error);
+        return [];
+    }
+}
+
+export default async function NewsPage() {
+    const newsItems = await getNews();
 
     return (
         <div className="min-h-screen bg-gray-50 py-12">
@@ -70,16 +33,25 @@ export default function NewsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {newsItems.map((item) => (
-                        <article
+                    {newsItems.map((item: any) => (
+                        <Link
                             key={item.id}
+                            href={`/news/${item.id}`}
                             className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-gray-100 flex flex-col"
                         >
-                            <div className="h-48 bg-gray-200 relative">
-                                {/* Placeholder for image */}
-                                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                                    <span className="text-sm">Зураг байхгүй</span>
-                                </div>
+                            <div className="h-48 bg-gray-200 relative overflow-hidden">
+                                {item.mainImage ? (
+                                    <Image
+                                        src={item.mainImage}
+                                        alt={item.title}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                        <span className="text-sm">Зураг байхгүй</span>
+                                    </div>
+                                )}
                             </div>
                             <div className="p-6 flex flex-col flex-grow">
                                 <div className="flex items-center justify-between mb-3">
@@ -88,24 +60,21 @@ export default function NewsPage() {
                                     </span>
                                     <div className="flex items-center text-gray-400 text-xs">
                                         <Calendar size={14} className="mr-1" />
-                                        {item.date}
+                                        {new Date(item.date).toLocaleDateString("mn-MN")}
                                     </div>
                                 </div>
                                 <h2 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 hover:text-blue-700 transition-colors">
-                                    <Link href={`/news/${item.id}`}>{item.title}</Link>
+                                    {item.title}
                                 </h2>
                                 <p className="text-sm text-gray-600 mb-4 line-clamp-3 flex-grow">
                                     {item.summary}
                                 </p>
-                                <Link
-                                    href={`/news/${item.id}`}
-                                    className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 mt-auto"
-                                >
+                                <div className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 mt-auto">
                                     Дэлгэрэнгүй унших
                                     <ArrowRight size={16} className="ml-1" />
-                                </Link>
+                                </div>
                             </div>
-                        </article>
+                        </Link>
                     ))}
                 </div>
             </div>

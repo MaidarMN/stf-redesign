@@ -1,34 +1,29 @@
 import Hero from "@/components/Hero";
-import NewsSection from "@/components/NewsSection";
 import { Users, FileText, Building2, Trophy } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
-    const news = [
-        {
-            id: 1,
-            title: "Шинжлэх ухааны ажилтны өдрийг тэмдэглэн өнгөрүүллээ",
-            date: "2023-11-24",
-            category: "Мэдээ",
-            summary:
-                "Монгол Улсад орчин цагийн шинжлэх ухааны байгууллага үүсэж хөгжсөний 102 жилийн ой, “Шинжлэх ухааны ажилтны өдөр”-ийг тохиолдуулан салбарын шилдэг ажилтнуудад шагнал гардууллаа.",
-        },
-        {
-            id: 2,
-            title: "2024 оны шинжлэх ухаан, технологийн төсөл сонгон шалгаруулалтын дүн",
-            date: "2023-11-20",
-            category: "Зарлал",
-            summary:
-                "2024 онд хэрэгжүүлэх шинжлэх ухаан, технологийн төслийн сонгон шалгаруулалтын дүн гарлаа. Шалгарсан төслүүдийн жагсаалттай танилцана уу.",
-        },
-        {
-            id: 3,
-            title: "Монгол-Хятадын хамтарсан судалгааны тэтгэлэг зарлагдлаа",
-            date: "2023-11-15",
-            category: "Тэтгэлэг",
-            summary:
-                "Монгол-Хятадын хамтарсан судалгааны төсөл хэрэгжүүлэх эрдэмтэн судлаачдыг урьж байна. Төслийн саналыг 2023 оны 12-р сарын 20 хүртэл хүлээн авна.",
-        },
-    ];
+export const dynamic = 'force-dynamic';
+
+async function getNews() {
+    try {
+        const news = await prisma.news.findMany({
+            take: 3,
+            orderBy: {
+                date: 'desc',
+            },
+        });
+        // Convert Date objects to strings to avoid serialization warnings if needed, 
+        // but Server Components can handle Dates if passed to client components carefully.
+        // However, Hero expects specific shape. Let's ensure it matches.
+        return JSON.parse(JSON.stringify(news));
+    } catch (error) {
+        console.error("Error fetching news:", error);
+        return [];
+    }
+}
+
+export default async function Home() {
+    const news = await getNews();
 
     const stats = [
         { label: "Хэрэгжиж буй төсөл", value: "100+", icon: FileText, color: "bg-blue-500" },
@@ -39,7 +34,7 @@ export default function Home() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero />
+            <Hero news={news} />
 
             {/* Stats Section */}
             <section className="py-12 -mt-10 relative z-10">
@@ -59,8 +54,6 @@ export default function Home() {
                     </div>
                 </div>
             </section>
-
-            <NewsSection title="Сүүлийн үеийн мэдээ" items={news} link="/news" />
 
             {/* Featured / Highlight Section */}
             <section className="py-20 bg-slate-50">
