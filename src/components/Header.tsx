@@ -106,7 +106,12 @@ const systemLinks = [
     { name: "Лабаратори бүртгэл", href: "https://docs.google.com/forms/d/e/1FAIpQLSfseYezmqUeB80CM3AJvvMf63mfdk4u2j8ZR7yQ78jew44cPg/viewform" },
 ];
 
+import { useSession, signOut } from "next-auth/react";
+
+// ... (imports)
+
 export default function Header() {
+    const { data: session } = useSession();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [mobileSystemsOpen, setMobileSystemsOpen] = useState(false);
@@ -203,6 +208,45 @@ export default function Header() {
                         <Globe size={20} />
                     </button>
 
+                    {/* Auth Button */}
+                    {session ? (
+                        <div className="relative group hidden lg:block">
+                            <button className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition-colors">
+                                {session.user?.name?.[0] || "U"}
+                            </button>
+                            <div className="absolute top-full right-0 w-48 bg-white shadow-xl rounded-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 mt-2">
+                                <div className="py-2">
+                                    <div className="px-4 py-2 border-b border-gray-100">
+                                        <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                                        <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
+                                    </div>
+                                    {session.user?.role === "ADMIN" && (
+                                        <Link href="/admin/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">
+                                            Админ самбар
+                                        </Link>
+                                    )}
+                                    <button
+                                        onClick={() => signOut()}
+                                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                    >
+                                        Гарах
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/api/auth/signin"
+                            className="hidden lg:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 hover:bg-blue-50 text-gray-600 hover:text-blue-700 transition-colors"
+                            title="Нэвтрэх"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </Link>
+                    )}
+
                     {/* Desktop Systems Dropdown */}
                     <div className="relative group hidden lg:block">
                         <button className="bg-blue-700 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-800 transition-all shadow-lg shadow-blue-700/20 hover:shadow-blue-700/40 active:scale-95 flex items-center">
@@ -276,7 +320,34 @@ export default function Header() {
                                 )}
                             </div>
                         ))}
-                        <div className="pt-4">
+                        <div className="pt-4 space-y-4">
+                            {session ? (
+                                <div className="space-y-2">
+                                    <div className="px-5 py-2 bg-gray-50 rounded-lg">
+                                        <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                                        <p className="text-xs text-gray-500">{session.user?.email}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => signOut()}
+                                        className="w-full bg-red-50 text-red-600 px-5 py-3 text-sm font-semibold hover:bg-red-100 transition-all flex justify-center items-center rounded-lg"
+                                    >
+                                        Гарах
+                                    </button>
+                                </div>
+                            ) : (
+                                <Link
+                                    href="/api/auth/signin"
+                                    className="w-full bg-gray-100 text-gray-700 px-5 py-3 text-sm font-semibold hover:bg-gray-200 transition-all flex justify-center items-center rounded-lg"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    Нэвтрэх
+                                </Link>
+                            )}
+
                             <div className="border rounded-lg overflow-hidden">
                                 <button
                                     onClick={() => setMobileSystemsOpen(!mobileSystemsOpen)}

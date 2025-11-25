@@ -2,11 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import CommentSection from "@/components/news/CommentSection";
 
 export default async function NewsArticlePage({ params }: { params: { id: string } }) {
     const article = await prisma.news.findUnique({
         where: {
             id: parseInt(params.id),
+        },
+    });
+
+    const comments = await prisma.comment.findMany({
+        where: {
+            newsId: parseInt(params.id),
+        },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    image: true,
+                },
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
         },
     });
 
@@ -91,6 +109,9 @@ export default async function NewsArticlePage({ params }: { params: { id: string
                         ))}
                     </div>
                 )}
+
+                {/* Comments Section */}
+                <CommentSection newsId={article.id} initialComments={comments} />
 
                 {/* Divider */}
                 <div className="mt-16 pt-8 border-t border-slate-200">
